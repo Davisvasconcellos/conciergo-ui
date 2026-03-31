@@ -67,7 +67,70 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-/* Utility for min screen height parity with prototypes */
 .min-proto-h {
   min-height: max(884px, 100dvh);
+}
+
+.login-wave-1 {
+  animation: login-wave-1 14s ease-in-out infinite;
+}
+
+.login-wave-2 {
+  animation: login-wave-2 18s ease-in-out infinite;
+}
+
+.login-float-1 {
+  animation: login-float-1 10s ease-in-out infinite;
+}
+
+.login-float-2 {
+  animation: login-float-2 12s ease-in-out infinite;
+}
+
+@keyframes login-wave-1 {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-18px, 10px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes login-wave-2 {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(14px, -8px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes login-float-1 {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes login-float-2 {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(10px, 8px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
 }

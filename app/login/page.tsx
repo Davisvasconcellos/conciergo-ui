@@ -6,26 +6,48 @@ import logo from '@/assets/img/logo.png'
 
 export default function Login() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-x-hidden bg-surface">
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-[10%] -right-[5%] w-[60%] h-[60%] bg-primary-fixed-dim/30 rounded-full blur-[120px]" />
-        <div className="absolute top-[40%] -left-[10%] w-[50%] h-[50%] bg-secondary-fixed/20 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-surface via-surface to-surface" />
+
+        <svg
+          className="absolute -top-20 left-0 w-full h-72 login-wave-1"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="rgba(0,88,190,0.18)"
+            d="M0,64L60,90.7C120,117,240,171,360,197.3C480,224,600,224,720,202.7C840,181,960,139,1080,117.3C1200,96,1320,96,1380,96L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"
+          />
+          <path
+            fill="rgba(0,88,190,0.32)"
+            d="M0,0L80,16C160,32,320,64,480,90.7C640,117,800,139,960,138.7C1120,139,1280,117,1360,106.7L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"
+          />
+        </svg>
+
+        <svg
+          className="absolute -top-28 -right-20 w-[520px] h-[520px] login-wave-2"
+          viewBox="0 0 400 400"
+          aria-hidden="true"
+        >
+          <path
+            fill="rgba(0,88,190,0.22)"
+            d="M235.6,35.9c42.1,7.7,86.6,26.4,108.1,61.1c21.7,34.8,20.5,85.5,1.6,128.6c-18.9,43.2-55.4,78.9-97.8,97.9c-42.6,18.9-91.1,20.9-132.8,2.4C73,307.3,38.2,268.2,27,224.7c-11.1-43.6,1.4-91.5,28.5-130.6C82.8,54.9,126.9,28.1,171.3,27C195.3,26.4,211.1,31.5,235.6,35.9z"
+          />
+        </svg>
+
+        <div className="absolute -bottom-40 -left-40 w-[420px] h-[420px] rounded-full bg-secondary/10 login-float-1" />
+        <div className="absolute bottom-24 left-24 w-20 h-20 rounded-full bg-primary/10 login-float-2" />
       </div>
 
       <main className="relative z-10 w-full max-w-md">
         <header className="text-center mb-10">
-          <div className="inline-flex items-center justify-center mb-6">
-            <Image src={logo} alt="CONCIERGO" priority className="h-10 w-auto" />
+          <div className="flex items-center justify-center">
+            <Image src={logo} alt="CONCIERGO" priority className="h-12 w-auto" />
           </div>
-          <h1 className="text-3xl font-bold text-on-surface font-headline tracking-tight mb-2">
-            Welcome Back
-          </h1>
-          <p className="text-on-surface-variant font-body">
-            Sign in to your pristine space concierge.
-          </p>
         </header>
 
-        <section className="glass-card rounded-lg p-8 shadow-[0_32px_64px_-16px_rgba(0,88,190,0.08)]">
+        <section className="rounded-xl p-8 shadow-[0_32px_64px_-16px_rgba(0,88,190,0.10)] border border-outline-variant/15 bg-white/55 backdrop-blur-3xl">
           <form className="space-y-6">
             <div className="space-y-2">
               <label
@@ -66,7 +88,7 @@ export default function Login() {
                 Or continue with
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="grid grid-cols-1 gap-4 w-full">
               <button className="flex items-center justify-center py-3 px-4 bg-surface-container-high rounded-md hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
                 <img
                   alt="Google Logo"
@@ -75,17 +97,6 @@ export default function Login() {
                 />
                 <span className="text-sm font-bold text-on-surface">
                   Google
-                </span>
-              </button>
-              <button className="flex items-center justify-center py-3 px-4 bg-surface-container-high rounded-md hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
-                <span
-                  className="material-symbols-outlined mr-3 text-on-surface"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  ios
-                </span>
-                <span className="text-sm font-bold text-on-surface">
-                  Apple
                 </span>
               </button>
             </div>
@@ -124,8 +135,6 @@ export default function Login() {
             </a>
           </p>
         </footer>
-
-        
       </main>
 
       <div className="fixed bottom-12 right-12 opacity-10 pointer-events-none select-none hidden lg:block">
