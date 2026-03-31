@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useI18n } from '@/components/i18n/I18nProvider'
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const { t } = useI18n()
 
   const isHome = pathname === '/'
   const isBookings = pathname.startsWith('/my-bookings')
@@ -26,7 +28,7 @@ export default function BottomNav() {
         >
           home
         </span>
-        <span className="text-[11px] font-semibold mt-0.5">Home</span>
+        <span className="text-[11px] font-semibold mt-0.5">{t('nav.home')}</span>
       </Link>
 
       <Link
@@ -43,7 +45,9 @@ export default function BottomNav() {
         >
           event_note
         </span>
-        <span className="text-[11px] font-semibold mt-0.5">Bookings</span>
+        <span className="text-[11px] font-semibold mt-0.5">
+          {t('nav.bookings')}
+        </span>
       </Link>
 
       <Link
@@ -60,7 +64,9 @@ export default function BottomNav() {
         >
           person
         </span>
-        <span className="text-[11px] font-semibold mt-0.5">Profile</span>
+        <span className="text-[11px] font-semibold mt-0.5">
+          {t('nav.profile')}
+        </span>
       </Link>
     </nav>
   )

@@ -6,8 +6,12 @@ import CustomServiceForm, {
   type CustomServiceValue,
 } from '@/components/customer/CustomServiceForm'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useI18n } from '@/components/i18n/I18nProvider'
 
 export default function Home() {
+  const { language, t } = useI18n()
+  const locale = language === 'en' ? 'en-US' : 'pt-BR'
+
   const [date, setDate] = useState<string>(() => {
     const d = new Date()
     const pad = (n: number) => String(n).padStart(2, '0')
@@ -212,7 +216,7 @@ export default function Home() {
   }, [customService])
 
   const activeServiceTitle =
-    servicesTab === 'custom' ? 'Custom' : selectedService.title
+    servicesTab === 'custom' ? t('home.custom') : selectedService.title
   const activeBasePrice =
     servicesTab === 'custom' ? customBasePrice : selectedService.basePrice
 
@@ -256,13 +260,13 @@ export default function Home() {
   const dateLabel = useMemo(() => {
     const parsed = new Date(`${date}T00:00:00`)
     if (Number.isNaN(parsed.getTime())) return date
-    return parsed.toLocaleDateString(undefined, {
+    return parsed.toLocaleDateString(locale, {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     })
-  }, [date])
+  }, [date, locale])
 
   const timeLabel = useMemo(() => {
     const [hh, mm] = startTime.split(':')
@@ -280,8 +284,8 @@ export default function Home() {
 
   const monthLabel = useMemo(() => {
     const d = new Date(calendarYear, calendarMonth, 1)
-    return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
-  }, [calendarYear, calendarMonth])
+    return d.toLocaleDateString(locale, { month: 'short', year: 'numeric' })
+  }, [calendarYear, calendarMonth, locale])
 
   const days = useMemo(() => {
     const firstDay = new Date(calendarYear, calendarMonth, 1)
@@ -330,7 +334,7 @@ export default function Home() {
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
-                  Estimated
+                  {t('home.estimated')}
                 </p>
                 <p className="text-base font-extrabold text-primary leading-none">
                   ${total}
@@ -366,10 +370,10 @@ export default function Home() {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    Summary
+                    {t('home.summary')}
                   </p>
                   <h3 className="text-xl font-extrabold tracking-tight">
-                    Estimated request
+                    {t('home.estimatedRequest')}
                   </h3>
                 </div>
                 <button
@@ -386,7 +390,7 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    Address
+                    {t('home.address')}
                   </p>
                   <p className="mt-2 font-semibold text-on-surface">
                     123 Collins St, Melbourne VIC 3000
@@ -396,21 +400,22 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                      Schedule
+                      {t('home.schedule')}
                     </p>
                     <p className="mt-2 font-semibold">
                       {dateLabel} • {timeLabel}
                     </p>
                     <p className="mt-1 text-sm text-on-surface-variant">
-                      Flexible dates: {flexibleDates ? 'Yes' : 'No'}
+                      {t('home.flexibleDates')}:{' '}
+                      {flexibleDates ? t('common.yes') : t('common.no')}
                     </p>
                   </div>
                   <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                      Preferences
+                      {t('home.preferences')}
                     </p>
                     <p className="mt-2 font-semibold">
-                      Own equipment: {ownEquipment ? 'Yes' : 'No'}
+                      {t('home.ownEquipment')}: {ownEquipment ? t('common.yes') : t('common.no')}
                     </p>
                     <p className="mt-1 text-sm text-on-surface-variant">
                       Radius: {radiusKm} km
@@ -422,16 +427,16 @@ export default function Home() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                        Service
+                        {t('home.service')}
                       </p>
                       <p className="mt-2 font-extrabold">{activeServiceTitle}</p>
                       <p className="mt-1 text-sm text-on-surface-variant">
-                        Base: ${activeBasePrice}
+                        {t('home.base')}: ${activeBasePrice}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
-                        Estimated
+                        {t('home.estimated')}
                       </p>
                       <p className="text-2xl font-extrabold text-primary leading-none">
                         ${total}
@@ -441,11 +446,11 @@ export default function Home() {
 
                   <div className="mt-4">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                      Add-ons
+                      {t('home.addOns')}
                     </p>
                     {selectedExtrasCount === 0 ? (
                       <p className="mt-2 text-sm text-on-surface-variant">
-                        No add-ons selected.
+                        {t('home.noAddOns')}
                       </p>
                     ) : (
                       <ul className="mt-2 space-y-2">
@@ -472,7 +477,7 @@ export default function Home() {
                     )}
                     <div className="mt-3 flex items-center justify-between text-sm">
                       <span className="font-semibold text-on-surface-variant">
-                        Add-ons total
+                        {t('home.addOnsTotal')}
                       </span>
                       <span className="font-bold text-on-surface">
                         +${selectedExtrasTotal}
@@ -508,7 +513,7 @@ export default function Home() {
                     Add-ons
                   </p>
                   <h3 className="text-xl font-extrabold tracking-tight">
-                    Choose extras
+                  {t('home.chooseExtras')}
                   </h3>
                 </div>
                 <button
@@ -539,7 +544,7 @@ export default function Home() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-extrabold text-on-surface">
+                          <p className="font-headline font-bold text-base text-on-surface">
                             {x.label}
                           </p>
                           <p className="text-xs font-bold text-primary mt-1">
@@ -581,15 +586,15 @@ export default function Home() {
       <main className="pt-24 px-4 max-w-7xl mx-auto space-y-10">
         <section>
           <h1 className="text-[26px] sm:text-3xl font-extrabold tracking-tight mb-4 text-on-surface whitespace-nowrap">
-            Where do you need?
+            {t('home.whereDoYouNeed')}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant -mt-2 mb-4">
-            123 Collins St, Melbourne VIC 3000 • Add a new address to change
+            {t('home.addressHint')}
           </p>
 
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-              Date
+              {t('home.date')}
             </label>
             <div className="relative w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <button
@@ -606,7 +611,7 @@ export default function Home() {
                       {dateLabel}
                     </p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
-                      Tap to change
+                      {t('home.tapToChange')}
                     </p>
                   </div>
                 </div>
@@ -692,7 +697,7 @@ export default function Home() {
                 className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 py-2 flex items-center justify-between gap-3 hover:bg-surface-container-low transition-colors"
               >
                 <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">
-                  Flexible dates
+                  {t('home.flexibleDates')}
                 </span>
                 <span
                   className={`w-9 h-5 rounded-full flex items-center p-0.5 transition-colors ${
@@ -716,7 +721,7 @@ export default function Home() {
                 className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 py-2 flex items-center justify-between gap-3 hover:bg-surface-container-low transition-colors"
               >
                 <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">
-                  Own equipment
+                  {t('home.ownEquipment')}
                 </span>
                 <span
                   className={`w-9 h-5 rounded-full flex items-center p-0.5 transition-colors ${
@@ -734,7 +739,7 @@ export default function Home() {
 
             <div className="mt-4">
               <label className="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-                Start time
+                {t('home.startTime')}
               </label>
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 py-2">
                 <div className="flex gap-2 overflow-x-auto hide-scrollbar snap-x snap-mandatory">
@@ -765,7 +770,7 @@ export default function Home() {
 
           <div className="mt-4">
             <label className="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-              Distance radius
+              {t('home.distanceRadius')}
             </label>
             <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3">
               <div className="flex items-center justify-between">
@@ -794,7 +799,7 @@ export default function Home() {
 
         <section>
           <div className="flex justify-between items-end mb-4">
-            <h2 className="text-xl font-bold">Choose your type</h2>
+            <h2 className="text-xl font-bold">{t('home.chooseYourType')}</h2>
           </div>
 
           <div className="bg-surface-container-low/50 p-1 rounded-xl flex mb-4">
@@ -807,7 +812,7 @@ export default function Home() {
                   : 'text-on-surface-variant hover:bg-white/50'
               }`}
             >
-              Recomended
+              {t('home.recommended')}
             </button>
             <button
               type="button"
@@ -821,7 +826,7 @@ export default function Home() {
                   : 'text-on-surface-variant hover:bg-white/50'
               }`}
             >
-              Custom
+              {t('home.custom')}
             </button>
           </div>
 
@@ -907,7 +912,7 @@ export default function Home() {
 
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Add-Ons</h2>
+            <h2 className="text-xl font-bold">{t('home.addOns')}</h2>
             <button
               type="button"
               onClick={() => {
@@ -923,7 +928,7 @@ export default function Home() {
           {selectedExtrasCount === 0 ? (
             <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5">
               <p className="text-sm text-on-surface-variant">
-                No add-ons selected. Tap + to add extras.
+                {t('home.noAddOns')}
               </p>
             </div>
           ) : (

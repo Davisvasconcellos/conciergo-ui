@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
+import { I18nProvider } from '@/components/i18n/I18nProvider'
 
 const headline = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className="light">
+    <html lang="en" className="light">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -35,7 +36,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`min-proto-h ${headline.variable} ${body.variable}`}>
-        {children}
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   )

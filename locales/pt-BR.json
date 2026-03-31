@@ -1,0 +1,65 @@
+{
+  "common": {
+    "yes": "Sim",
+    "no": "Não",
+    "each": "cada"
+  },
+  "nav": {
+    "home": "Início",
+    "bookings": "Reservas",
+    "profile": "Perfil"
+  },
+  "menu": {
+    "profile": "Perfil",
+    "language": "Idioma",
+    "exit": "Sair",
+    "english": "Inglês",
+    "ptbr": "Português (Brasil)"
+  },
+  "home": {
+    "whereDoYouNeed": "Onde você precisa?",
+    "addressHint": "123 Collins St, Melbourne VIC 3000 • Cadastre um novo endereço para alterar",
+    "date": "Data",
+    "tapToChange": "Toque para alterar",
+    "startTime": "Horário de início",
+    "flexibleDates": "Datas flexíveis",
+    "ownEquipment": "Com Equipamento",
+    "distanceRadius": "Raio de distância",
+    "chooseYourType": "Escolha seu tipo",
+    "recommended": "Recomendado",
+    "custom": "Personalizado",
+    "addOns": "Extras",
+    "noAddOns": "Nenhum extra selecionado. Toque em + para adicionar.",
+    "estimated": "Estimado",
+    "schedule": "Agendamento",
+    "summary": "Resumo",
+    "estimatedRequest": "Solicitação estimada",
+    "address": "Endereço",
+    "preferences": "Preferências",
+    "service": "Serviço",
+    "base": "Base",
+    "addOnsTotal": "Total de extras",
+    "chooseExtras": "Escolher extras"
+  }
+  ,
+  "custom": {
+    "title": "Personalize seu serviço",
+    "subtitle": "Conte sobre o seu espaço. Vamos calcular o tempo e o custo ideais para um resultado impecável.",
+    "roomsLabel": "Quartos",
+    "roomsDesc": "Dormitórios e áreas de estar",
+    "bathroomsLabel": "Banheiros",
+    "bathroomsDesc": "Banheiro completo e lavabo",
+    "kitchenLabel": "Cozinha",
+    "kitchenDesc": "Área da cozinha",
+    "livingDiningLabel": "Sala / Jantar",
+    "livingDiningDesc": "Áreas comuns",
+    "windowsLabel": "Janelas",
+    "windowsDesc": "Painéis de janela",
+    "rugsLabel": "Tapetes",
+    "rugsDesc": "Tapetes e capachos",
+    "noLaundry": "Sem Lavanderia",
+    "oneLoad": "1 carga (+1h)",
+    "twoLoads": "2 cargas (+2h)",
+    "info": "As estimativas são baseadas em tamanhos padrão. Limpeza profunda ou tarefas mais pesadas podem exigir tempo adicional, que o concierge confirmará na visita."
+  }
+}

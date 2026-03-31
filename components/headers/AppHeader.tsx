@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import logo from '@/assets/img/logo.png'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/components/i18n/I18nProvider'
 
 type Props = {
   avatarSrc?: string
@@ -20,6 +21,7 @@ export default function AppHeader({
   avatarAlt = 'Profile',
   showNotificationDot = true,
 }: Props) {
+  const { language, setLanguage, t } = useI18n()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -87,22 +89,53 @@ export default function AppHeader({
                 onClick={() => setMenuOpen(false)}
               >
                 <span className="material-symbols-outlined">person</span>
-                <span className="text-sm font-semibold">Profile</span>
+                <span className="text-sm font-semibold">{t('menu.profile')}</span>
               </Link>
-              <button
-                type="button"
-                className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors"
-              >
-                <span className="material-symbols-outlined">translate</span>
-                <span className="text-sm font-semibold">Language</span>
-              </button>
+              <div className="px-3 py-2 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined">translate</span>
+                  <span className="text-sm font-semibold">
+                    {t('menu.language')}
+                  </span>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage('en')
+                      setMenuOpen(false)
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-extrabold border transition-colors ${
+                      language === 'en'
+                        ? 'bg-primary text-on-primary border-primary/30'
+                        : 'bg-white/60 text-on-surface-variant border-outline-variant/20 hover:bg-surface-container-low'
+                    }`}
+                  >
+                    EN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage('pt-BR')
+                      setMenuOpen(false)
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-extrabold border transition-colors ${
+                      language === 'pt-BR'
+                        ? 'bg-primary text-on-primary border-primary/30'
+                        : 'bg-white/60 text-on-surface-variant border-outline-variant/20 hover:bg-surface-container-low'
+                    }`}
+                  >
+                    PT-BR
+                  </button>
+                </div>
+              </div>
               <Link
                 href="/login"
                 className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 <span className="material-symbols-outlined">logout</span>
-                <span className="text-sm font-semibold">Exit</span>
+                <span className="text-sm font-semibold">{t('menu.exit')}</span>
               </Link>
             </div>
           ) : null}
