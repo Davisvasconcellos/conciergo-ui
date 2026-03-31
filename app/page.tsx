@@ -2,14 +2,25 @@
 
 import AppHeader from '@/components/headers/AppHeader'
 import BottomNav from '@/components/BottomNav'
-import CustomServiceForm from '@/components/customer/CustomServiceForm'
-import { useEffect, useMemo, useState } from 'react'
+import CustomServiceForm, {
+  type CustomServiceValue,
+} from '@/components/customer/CustomServiceForm'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export default function Home() {
   const [date, setDate] = useState<string>(() => {
     const d = new Date()
     const pad = (n: number) => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  })
+  const [startTime, setStartTime] = useState<string>(() => {
+    const now = new Date()
+    const minutes = now.getHours() * 60 + now.getMinutes()
+    const roundUpTo30 = (m: number) => Math.ceil(m / 30) * 30
+    const clamped = Math.min(20 * 60, Math.max(6 * 60, roundUpTo30(minutes)))
+    const hh = String(Math.floor(clamped / 60)).padStart(2, '0')
+    const mm = String(clamped % 60).padStart(2, '0')
+    return `${hh}:${mm}`
   })
   const [flexibleDates, setFlexibleDates] = useState(false)
   const [ownEquipment, setOwnEquipment] = useState(false)
@@ -115,6 +126,35 @@ export default function Home() {
   const [servicesTab, setServicesTab] = useState<'general' | 'custom'>('general')
   const [addOnsExpanded, setAddOnsExpanded] = useState(false)
   const [extraQty, setExtraQty] = useState<Record<string, number>>({})
+  const [customService, setCustomService] = useState<CustomServiceValue>({
+    rooms: 1,
+    bathrooms: 1,
+    kitchen: 1,
+    livingDining: 1,
+    windows: 1,
+    rugs: 1,
+    laundry: 'none',
+  })
+  const serviceRailRef = useRef<HTMLDivElement | null>(null)
+  const serviceCardRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  const ensureServiceVisible = (serviceId: string) => {
+    const rail = serviceRailRef.current
+    const el = serviceCardRefs.current[serviceId]
+    if (!rail || !el) return
+
+    const railRect = rail.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const leftInRail = elRect.left - railRect.left
+    const rightInRail = elRect.right - railRect.left
+    const padding = 12
+
+    if (leftInRail >= padding && rightInRail <= railRect.width - padding) return
+
+    const targetLeft =
+      rail.scrollLeft + leftInRail - (railRect.width - elRect.width) / 2
+    rail.scrollTo({ left: targetLeft, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     if (!addOnsExpanded) return
@@ -152,6 +192,30 @@ export default function Home() {
     }, 0)
   }, [extras, extraQty])
 
+  const customBasePrice = useMemo(() => {
+    const laundryCost =
+      customService.laundry === 'one'
+        ? 20
+        : customService.laundry === 'two'
+          ? 40
+          : 0
+
+    return (
+      customService.rooms * 40 +
+      customService.bathrooms * 60 +
+      customService.kitchen * 80 +
+      customService.livingDining * 70 +
+      customService.windows * 5 +
+      customService.rugs * 5 +
+      laundryCost
+    )
+  }, [customService])
+
+  const activeServiceTitle =
+    servicesTab === 'custom' ? 'Custom' : selectedService.title
+  const activeBasePrice =
+    servicesTab === 'custom' ? customBasePrice : selectedService.basePrice
+
   const selectedExtrasCount = useMemo(() => {
     return Object.values(extraQty).reduce((sum, qty) => sum + qty, 0)
   }, [extraQty])
@@ -173,7 +237,64 @@ export default function Home() {
     setSummaryDocked(true)
   }
 
-  const total = selectedService.basePrice + selectedExtrasTotal
+  const total = activeBasePrice + selectedExtrasTotal
+
+  const timeSlots = useMemo(() => {
+    const slots: Array<{ value: string; label: string }> = []
+    for (let mins = 6 * 60; mins <= 20 * 60; mins += 30) {
+      const hh = Math.floor(mins / 60)
+      const mm = mins % 60
+      const value = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+      const hour12 = ((hh + 11) % 12) + 1
+      const ampm = hh < 12 ? 'AM' : 'PM'
+      const label = `${hour12}:${String(mm).padStart(2, '0')} ${ampm}`
+      slots.push({ value, label })
+    }
+    return slots
+  }, [])
+
+  const dateLabel = useMemo(() => {
+    const parsed = new Date(`${date}T00:00:00`)
+    if (Number.isNaN(parsed.getTime())) return date
+    return parsed.toLocaleDateString(undefined, {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+  }, [date])
+
+  const timeLabel = useMemo(() => {
+    const [hh, mm] = startTime.split(':')
+    const h = Number(hh)
+    const m = Number(mm)
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return startTime
+    const hour12 = ((h + 11) % 12) + 1
+    const ampm = h < 12 ? 'AM' : 'PM'
+    return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`
+  }, [startTime])
+
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [calendarYear, setCalendarYear] = useState(() => Number(date.split('-')[0]))
+  const [calendarMonth, setCalendarMonth] = useState(() => Number(date.split('-')[1]) - 1) // 0-11
+
+  const monthLabel = useMemo(() => {
+    const d = new Date(calendarYear, calendarMonth, 1)
+    return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+  }, [calendarYear, calendarMonth])
+
+  const days = useMemo(() => {
+    const firstDay = new Date(calendarYear, calendarMonth, 1)
+    const startWeekday = firstDay.getDay() // 0(Sun)-6(Sat)
+    const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate()
+    const grid: Array<{ day?: number; iso?: string }> = []
+    for (let i = 0; i < startWeekday; i++) grid.push({})
+    for (let d = 1; d <= totalDays; d++) {
+      const iso = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      grid.push({ day: d, iso })
+    }
+    return grid
+  }, [calendarYear, calendarMonth])
 
   return (
     <div className="bg-surface text-on-surface min-h-screen pb-56">
@@ -199,17 +320,17 @@ export default function Home() {
             <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                  {selectedService.title}
+                  {activeServiceTitle}
                 </p>
                 <p className="text-xs font-semibold text-on-surface truncate">
-                  ${selectedService.basePrice}
+                  ${activeBasePrice}
                   {selectedExtrasTotal > 0 ? ` + $${selectedExtrasTotal}` : ''}{' '}
                   {selectedExtrasTotal > 0 ? '(Add-ons)' : ''}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
-                  Total estimado
+                  Estimated
                 </p>
                 <p className="text-base font-extrabold text-primary leading-none">
                   ${total}
@@ -275,9 +396,11 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                      Date
+                      Schedule
                     </p>
-                    <p className="mt-2 font-semibold">{date}</p>
+                    <p className="mt-2 font-semibold">
+                      {dateLabel} • {timeLabel}
+                    </p>
                     <p className="mt-1 text-sm text-on-surface-variant">
                       Flexible dates: {flexibleDates ? 'Yes' : 'No'}
                     </p>
@@ -301,14 +424,14 @@ export default function Home() {
                       <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                         Service
                       </p>
-                      <p className="mt-2 font-extrabold">{selectedService.title}</p>
+                      <p className="mt-2 font-extrabold">{activeServiceTitle}</p>
                       <p className="mt-1 text-sm text-on-surface-variant">
-                        Base: ${selectedService.basePrice}
+                        Base: ${activeBasePrice}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
-                        Total estimado
+                        Estimated
                       </p>
                       <p className="text-2xl font-extrabold text-primary leading-none">
                         ${total}
@@ -468,12 +591,96 @@ export default function Home() {
             <label className="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
               Date
             </label>
-            <input
-              className="w-full bg-surface-container-lowest border border-outline-variant/30 py-3 px-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:ring-2 focus:ring-primary/20 font-semibold text-on-surface transition-all"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <div className="relative w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+              <button
+                type="button"
+                onClick={() => setCalendarOpen(true)}
+                className="w-full px-4 py-3 flex items-center justify-between rounded-xl hover:bg-surface-container-low transition-colors"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    calendar_month
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-extrabold text-on-surface truncate">
+                      {dateLabel}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-outline">
+                      Tap to change
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-primary">
+                    {timeLabel}
+                  </span>
+                  <span className="material-symbols-outlined text-outline">
+                    expand_more
+                  </span>
+                </div>
+              </button>
+              {calendarOpen ? (
+                <div className="absolute z-20 top-full left-0 mt-2 w-80 bg-white rounded-xl border border-outline-variant/20 shadow-xl p-3">
+                  <div className="flex items-center justify-between mb-2 px-1">
+                    <button
+                      type="button"
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low"
+                      onClick={() => {
+                        const m = calendarMonth === 0 ? 11 : calendarMonth - 1
+                        const y = calendarMonth === 0 ? calendarYear - 1 : calendarYear
+                        setCalendarMonth(m)
+                        setCalendarYear(y)
+                      }}
+                    >
+                      <span className="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <span className="text-sm font-extrabold">{monthLabel}</span>
+                    <button
+                      type="button"
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low"
+                      onClick={() => {
+                        const m = calendarMonth === 11 ? 0 : calendarMonth + 1
+                        const y = calendarMonth === 11 ? calendarYear + 1 : calendarYear
+                        setCalendarMonth(m)
+                        setCalendarYear(y)
+                      }}
+                    >
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-on-surface-variant mb-1">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-2">
+                    {days.map((d, i) => {
+                      const isSelected = d.iso === date
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={!d.day}
+                          onClick={() => {
+                            if (!d.iso) return
+                            setDate(d.iso)
+                            setSummaryDocked(true)
+                            setCalendarOpen(false)
+                          }}
+                          className={`h-9 rounded-lg text-sm font-bold ${
+                            !d.day
+                              ? 'opacity-30 cursor-default'
+                              : isSelected
+                                ? 'bg-primary text-on-primary'
+                                : 'hover:bg-surface-container-low'
+                          }`}
+                        >
+                          {d.day ?? ''}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3">
               <button
@@ -524,6 +731,36 @@ export default function Home() {
                 </span>
               </button>
             </div>
+
+            <div className="mt-4">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                Start time
+              </label>
+              <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 py-2">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar snap-x snap-mandatory">
+                  {timeSlots.map((slot) => {
+                    const selected = slot.value === startTime
+                    return (
+                      <button
+                        key={slot.value}
+                        type="button"
+                        onClick={() => {
+                          setStartTime(slot.value)
+                          setSummaryDocked(true)
+                        }}
+                        className={`snap-start shrink-0 px-3 py-2 rounded-full text-xs font-extrabold transition-colors border ${
+                          selected
+                            ? 'bg-primary text-on-primary border-primary/30'
+                            : 'bg-white/60 text-on-surface-variant border-outline-variant/20 hover:bg-surface-container-low'
+                        }`}
+                      >
+                        {slot.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="mt-4">
@@ -570,7 +807,7 @@ export default function Home() {
                   : 'text-on-surface-variant hover:bg-white/50'
               }`}
             >
-              Package
+              Recomended
             </button>
             <button
               type="button"
@@ -590,7 +827,10 @@ export default function Home() {
 
           {servicesTab === 'general' ? (
             <>
-              <div className="flex gap-4 overflow-x-auto pb-2 pr-4 snap-x snap-mandatory hide-scrollbar md:pr-0 md:pb-0 md:overflow-visible md:grid md:grid-cols-3">
+              <div
+                ref={serviceRailRef}
+                className="flex gap-4 overflow-x-auto pb-2 pr-4 snap-x snap-mandatory hide-scrollbar md:pr-0 md:pb-0 md:overflow-visible md:grid md:grid-cols-3"
+              >
                 {services.map((s) => {
                   const selected = s.id === selectedServiceId
                   return (
@@ -600,6 +840,10 @@ export default function Home() {
                       onClick={() => {
                         setSelectedServiceId(s.id)
                         setSummaryDocked(true)
+                        requestAnimationFrame(() => ensureServiceVisible(s.id))
+                      }}
+                      ref={(el) => {
+                        serviceCardRefs.current[s.id] = el
                       }}
                       className={`snap-start shrink-0 w-[85%] sm:w-[60%] md:w-auto md:shrink text-left rounded-xl p-5 border transition-all active:scale-[0.99] max-h-[200px] overflow-hidden flex flex-col items-start justify-start ${
                         selected
@@ -639,9 +883,9 @@ export default function Home() {
 
               <div
                 key={selectedServiceId}
-                className="mt-6 bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5 reveal-pop"
+                className="mt-4 bg-primary/10 border border-primary/30 rounded-xl p-5 reveal-pop shadow-[0_12px_30px_rgba(0,88,190,0.08)]"
               >
-                <div className="mt-5">
+                <div>
                   <p className="text-sm font-extrabold text-on-surface mb-2">
                     {selectedService.detailsTitle}
                   </p>
@@ -657,7 +901,7 @@ export default function Home() {
               </div>
             </>
           ) : (
-            <CustomServiceForm showIntro={false} />
+            <CustomServiceForm showIntro={false} onChange={setCustomService} />
           )}
         </section>
 

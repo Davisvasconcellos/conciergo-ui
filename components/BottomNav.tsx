@@ -11,7 +11,7 @@ export default function BottomNav() {
   const isProfile = pathname.startsWith('/user-profile')
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-t-[2rem] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-4 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-t-[2rem] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
       <Link
         href="/"
         className={`flex flex-col items-center justify-center rounded-full px-5 py-1.5 transition-transform duration-200 active:scale-95 ${

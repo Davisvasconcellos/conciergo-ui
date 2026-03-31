@@ -1,6 +1,9 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import logo from '@/assets/img/logo.png'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   avatarSrc?: string
@@ -15,12 +18,31 @@ const defaultAvatarSrc =
 export default function AppHeader({
   avatarSrc = defaultAvatarSrc,
   avatarAlt = 'Profile',
-  avatarHref = '/login',
   showNotificationDot = true,
 }: Props) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
   return (
     <header className="fixed top-0 w-full z-50 glass-header">
-      <div className="flex justify-between items-center px-4 h-16 w-full max-w-7xl mx-auto">
+      <div className="flex justify-between items-center px-4 h-16 w-full max-w-7xl mx-auto relative">
         <div className="flex items-center gap-4">
           <Image
             src={logo}
@@ -39,7 +61,12 @@ export default function AppHeader({
               <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
             ) : null}
           </div>
-          <Link href={avatarHref} className="flex items-center gap-3 pl-2">
+          <button
+            ref={buttonRef}
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center gap-3 pl-2"
+          >
             <Image
               alt={avatarAlt}
               src={avatarSrc}
@@ -47,7 +74,38 @@ export default function AppHeader({
               height={40}
               className="w-10 h-10 rounded-full object-cover"
             />
-          </Link>
+          </button>
+
+          {menuOpen ? (
+            <div
+              ref={menuRef}
+              className="absolute top-16 right-4 w-48 bg-white/90 backdrop-blur-xl border border-outline-variant/20 rounded-xl shadow-lg p-2"
+            >
+              <Link
+                href="/user-profile"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span className="material-symbols-outlined">person</span>
+                <span className="text-sm font-semibold">Profile</span>
+              </Link>
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors"
+              >
+                <span className="material-symbols-outlined">translate</span>
+                <span className="text-sm font-semibold">Language</span>
+              </button>
+              <Link
+                href="/login"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span className="material-symbols-outlined">logout</span>
+                <span className="text-sm font-semibold">Exit</span>
+              </Link>
+            </div>
+          ) : null}
         </div>
       </div>
     </header>
